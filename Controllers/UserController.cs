@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using MoviesLuv.Domain;
 using MoviesLuv.Models;
 using System;
 using System.Collections.Generic;
@@ -26,7 +27,7 @@ namespace MoviesLuv.Controllers
             _db = db;
         }
 
-        private string GenerateAccessToken(string username, string userRole)
+        private string GenerateAccessToken(Guid id, string userRole)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_jwtsettings.SecretKey);
@@ -34,7 +35,7 @@ namespace MoviesLuv.Controllers
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimTypes.Name, username),
+                    new Claim(ClaimTypes.Name, id.ToString()),
                     new Claim(ClaimTypes.Role, userRole),
                 }),
                 Expires = DateTime.UtcNow.AddDays(1),
@@ -47,19 +48,22 @@ namespace MoviesLuv.Controllers
 
         [HttpPost]
         [Route("login")]
-        public IActionResult Login(User user)
+        public IActionResult Login(LoginRequest req)
         {
-            if (user == null)
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+            if (req == null)
             {
                 return Unauthorized();
             }
-            User usr = _db.User.FirstOrDefault(x => x.Username == user.Username && x.Password == user.Password);
-            if (usr == null)
+            User dbUser = _db.User.FirstOrDefault(x => x.Username == req.Username && x.Password == req.Password);
+            if (dbUser == null)
             {
                 return Unauthorized();
             }
-            return Ok(GenerateAccessToken(user.Username, "Normal"));
-
+            return Ok(GenerateAccessToken(dbUser.UserId, dbUser.UserRole));
         }
     }
 }
