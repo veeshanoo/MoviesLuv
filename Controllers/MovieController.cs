@@ -30,6 +30,30 @@ namespace MoviesLuv.Controllers
             return Ok(_db.Movie.ToList());
         }
 
+        [HttpGet]
+        [Authorize(Roles = UserRole.Everyone)]
+        [Route("{id}")]
+        public IActionResult Get(Guid id)
+        {
+            Movie movie = _db.Movie.Find(id);
+            return Ok(movie);
+        }
+
+        [HttpDelete]
+        [Authorize(Roles = UserRole.Admin)]
+        [Route("{id}")]
+        public IActionResult DeleteMovie(Guid id)
+        {
+            var movie = _db.Movie.Find(id);
+            if (movie != null)
+            {
+                _db.Movie.Remove(movie);
+                _db.SaveChanges();
+                return Ok();
+            }
+            return NotFound($"Movie with Id: {id} was not found.");
+        }
+
         [HttpPost]
         [Authorize(Roles = UserRole.Admin)]
         public IActionResult Create(Movie movie)
@@ -47,22 +71,23 @@ namespace MoviesLuv.Controllers
             return Ok(movie);
         }
 
-        [HttpPatch]
+        [HttpPut]
         [Authorize(Roles = UserRole.Admin)]
         [Route("{id}")]
-        public IActionResult Edit(Guid id, Movie movie)
+        public IActionResult Edit(Guid id, Movie newMovie)
         {
-            if (!ModelState.IsValid)
+            var existingMovie = _db.Movie.Find(id);
+            if (existingMovie == null)
             {
-                return BadRequest();
+                return NotFound($"Movie with Id: {id} was not found.");
             }
-
-            movie.NrOfReviews = 0;
-            movie.Rating = 0;
-            movie.MovieId = new Guid();
-            _db.Movie.Add(movie);
+            existingMovie.Name = newMovie.Name;
+            existingMovie.LaunchYear = newMovie.LaunchYear;
+            existingMovie.Summary = newMovie.Summary;
+            existingMovie.ImageUrl = newMovie.ImageUrl;
+            _db.Movie.Update(existingMovie);
             _db.SaveChanges();
-            return Ok(movie);
+            return Ok(existingMovie);
         }
     }
 }
