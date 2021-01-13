@@ -31,6 +31,9 @@ namespace MoviesLuv
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddControllers().AddNewtonsoftJson(options =>
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+            );
 
             // Db config
             services.AddDbContext<DbCtx>(options => options.UseSqlServer(

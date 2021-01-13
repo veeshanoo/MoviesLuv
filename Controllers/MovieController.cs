@@ -65,7 +65,7 @@ namespace MoviesLuv.Controllers
 
             movie.NrOfReviews = 0;
             movie.Rating = 0;
-            movie.MovieId = new Guid();
+            movie.MovieId = Guid.NewGuid();
             _db.Movie.Add(movie);
             _db.SaveChanges();
             return Ok(movie);
