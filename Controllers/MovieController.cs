@@ -27,7 +27,7 @@ namespace MoviesLuv.Controllers
         [Authorize(Roles = UserRole.Everyone)]
         public IActionResult Get()
         {
-            return Ok(_db.Movie.ToList());
+            return Ok(_db.Movie.ToList().OrderByDescending(x => x.Rating));
         }
 
         [HttpGet]

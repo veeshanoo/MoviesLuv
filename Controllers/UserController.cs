@@ -27,7 +27,7 @@ namespace MoviesLuv.Controllers
             _db = db;
         }
 
-        private string GenerateAccessToken(Guid id, string userRole)
+        private string GenerateAccessToken(Guid id, string userRole, string name)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_jwtsettings.SecretKey);
@@ -37,6 +37,7 @@ namespace MoviesLuv.Controllers
                 {
                     new Claim(ClaimTypes.Name, id.ToString()),
                     new Claim(ClaimTypes.Role, userRole),
+                    new Claim(ClaimTypes.GivenName, name),
                 }),
                 Expires = DateTime.UtcNow.AddDays(1),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
@@ -63,7 +64,7 @@ namespace MoviesLuv.Controllers
             {
                 return Unauthorized();
             }
-            return Ok(GenerateAccessToken(dbUser.UserId, dbUser.UserRole));
+            return Ok(GenerateAccessToken(dbUser.UserId, dbUser.UserRole, dbUser.Name));
         }
     }
 }
