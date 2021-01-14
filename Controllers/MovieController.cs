@@ -44,6 +44,13 @@ namespace MoviesLuv.Controllers
         [Route("{id}")]
         public IActionResult DeleteMovie(Guid id)
         {
+            // we will first delete favorites and towatch
+            List<Favorites> favoritesList = _db.Favorites.Where(x => x.MovieId == id).ToList();
+            List<ToWatch> toWatchList = _db.ToWatch.Where(x => x.MovieId == id).ToList();
+
+            _db.Favorites.RemoveRange(favoritesList);
+            _db.ToWatch.RemoveRange(toWatchList);
+
             var movie = _db.Movie.Find(id);
             if (movie != null)
             {

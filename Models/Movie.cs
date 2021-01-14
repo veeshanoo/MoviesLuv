@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -21,6 +22,8 @@ namespace MoviesLuv.Models
         public int NrOfReviews { get; set; }
         [Required]
         public float Rating { get; set; }
+        [NotMapped]
+        public bool IsFavorite { get; set; }
 
         public ICollection<Review> Reviews { get; set; }
         public ICollection<ToWatch> ToWatchList { get; set; }
